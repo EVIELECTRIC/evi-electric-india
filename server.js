@@ -1,44 +1,63 @@
-const express=require("express");
-const path=require("path");
-const app=express();
+const express = require("express");
+const path = require("path");
+const fs = require("fs"); // फ़ाइल सिस्टम मॉड्यूल जोड़ा
+const app = express();
+
 app.use(express.json());
-app.use(express.static(path.join(__dirname,"public")));
+app.use(express.static(path.join(__dirname, "public")));
 
-const users=[];
-const withdrawals=[];
+// डेटा फ़ाइलों के पाथ सेट किए
+const USERS_FILE = path.join(__dirname, "users.json");
+const WITHDRAWALS_FILE = path.join(__dirname, "withdrawals.json");
 
-app.post("/api/register",(req,res)=>{
-  const {name,mobile,password}=req.body||{};
-  if(!name||!mobile||!password) return res.status(400).json({error:"All fields are required"});
-  if(users.some(u=>u.mobile===mobile)) return res.status(409).json({error:"Mobile already registered"});
-  const user={id:users.length+1,name,mobile,password,balance:0};
-  users.push(user);
-  res.json({ok:true,user:{id:user.id,name:user.name,mobile:user.mobile,balance:user.balance}});
+// फ़ाइल से डेटा पढ़ने का फंक्शन
+const readData = (filePath) => {
+try {
+if (!fs.existsSync(filePath)) return [];
+const data = fs.readFileSync(filePath, "utf8");
+return JSON.parse(data || "[]");
+} catch (err) {
+return [];
+}
+};
+
+// फ़ाइल में डेटा सेव करने का फंक्शन
+const writeData = (filePath, data) => {
+try {
+fs.writeFileSync(filePath, JSON.stringify(data, null, 2), "utf8");
+} catch (err) {
+console.error("Error writing file:", err);
+}
+};
+
+// 1. Register API
+app.post("/api/register", (req, res) => {
+const { name, mobile, password } = req.body || {};
+if (!name || !mobile || !password) return res.status(400).json({ error: "All fields are required" });
+
+const users = readData(USERS_FILE);
+const userExists = users.some(u => u.mobile === mobile);
+if (userExists) return res.status(409).json({ error: "Mobile already registered" });
+
+const newUser = { id: users.length + 1, name, mobile, password, balance: 0 };
+users.push(newUser);
+writeData(USERS_FILE, users);
+
+res.json({ ok: true, user: { id: newUser.id, name, mobile, balance: 0 } });
 });
 
-app.post("/api/login",(req,res)=>{
-  const {mobile,password}=req.body||{};
-  const user=users.find(u=>u.mobile===mobile&&u.password===password);
-  if(!user) return res.status(401).json({error:"Invalid login"});
-  res.json({ok:true,user:{id:user.id,name:user.name,mobile:user.mobile,balance:user.balance}});
+// 2. Login API
+app.post("/api/login", (req, res) => {
+const { mobile, password } = req.body || {};
+const users = readData(USERS_FILE);
+const user = users.find(u => u.mobile === mobile && u.password === password);
+
+if (!user) return res.status(401).json({ error: "Invalid login" });
+res.json({ ok: true, user: { id: user.id, name: user.name, mobile: user.mobile, balance: user.balance } });
 });
 
-app.post("/api/withdraw",(req,res)=>{
-  const {userId,amount,upi}=req.body||{};
-  const user=users.find(u=>u.id===Number(userId));
-  if(!user) return res.status(404).json({error:"User not found"});
-  if(!upi||!amount||Number(amount)<=0) return res.status(400).json({error:"Valid UPI and amount required"});
-  if(Number(amount)>user.balance) return res.status(400).json({error:"Insufficient balance"});
-  const w={id:withdrawals.length+1,userId:user.id,amount:Number(amount),upi,status:"pending",createdAt:new Date().toISOString()};
-  withdrawals.push(w);
-  user.balance-=Number(amount);
-  res.json({ok:true,withdrawal:w,balance:user.balance});
-});
-
-app.get("/api/admin/users",(req,res)=>res.json(users.map(({password,...u})=>u)));
-app.get("/api/admin/withdrawals",(req,res)=>res.json(withdrawals));
-
-app.use((req,res)=>{
-res.sendFile(path.join(__dirname,"public","index.html"));
-});
-app.listen(process.env.PORT||3000,()=>console.log("EVI Electric server running"));
+// 3. Withdraw API
+app.post("/api/withdraw", (req, res) => {
+const { userId, amount, upi } = req.body || {};
+const users = readData(USERS_FILE);
+const
