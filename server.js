@@ -38,5 +38,7 @@ app.post("/api/withdraw",(req,res)=>{
 app.get("/api/admin/users",(req,res)=>res.json(users.map(({password,...u})=>u)));
 app.get("/api/admin/withdrawals",(req,res)=>res.json(withdrawals));
 
-app.get("*",(req,res)=>res.sendFile(path.join(__dirname,"public","index.html")));
+app.use((req,res)=>{
+res.sendFile(path.join(__dirname,"public","index.html"));
+});
 app.listen(process.env.PORT||3000,()=>console.log("EVI Electric server running"));
