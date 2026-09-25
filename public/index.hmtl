@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EVI Electric</title>
+
+<style>
+* {
+box-sizing: border-box;
+font-family: Arial, sans-serif;
+}
+
+body {
+margin: 0;
+background: #f3f5f7;
+color: #222;
+}
+
+header {
+background: #111827;
+color: white;
+padding: 18px;
+text-align: center;
+}
+
+.container {
+max-width: 500px;
+margin: 25px auto;
+padding: 15px;
+}
+
+.card {
+background: white;
+padding: 20px;
+margin-bottom: 18px;
+border-radius: 14px;
+box-shadow: 0 3px 12px rgba(0,0,0,.08);
+}
+
+h2 {
+margin-top: 0;
+}
+
+input {
+width: 100%;
+padding: 13px;
+margin: 8px 0;
+border: 1px solid #ddd;
+border-radius: 8px;
+}
+
+button {
+width: 100%;
+padding: 13px;
+margin-top: 10px;
+border: 0;
+border-radius: 8px;
+background: #16a34a;
+color: white;
+font-size: 16px;
+cursor: pointer;
+}
+
+button.secondary {
+background: #2563eb;
+}
+
+button.logout {
+background: #dc2626;
+}
+
+.balance {
+font-size: 30px;
+font-weight: bold;
+margin: 10px 0;
+}
+
+#dashboard {
+display: none;
+}
+
+#message {
+margin-top: 12px;
+padding: 10px;
+border-radius: 8px;
+background: #eef2ff;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+<h1>EVI Electric</h1>
+<p>Demo Platform</p>
+</header>
+
+<div class="container">
+
+<div class="card" id="auth">
+
+<h2>Register</h2>
+
+<input id="regName" placeholder="Name">
+<input id="regMobile" placeholder="Mobile Number">
+<input id="regPassword" type="password" placeholder="Password">
+
+<button onclick="register()">Create Account</button>
+
+<hr>
+
+<h2>Login</h2>
+
+<input id="loginMobile" placeholder="Mobile Number">
+<input id="loginPassword" type="password" placeholder="Password">
+
+<button c
